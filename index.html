@@ -23,6 +23,32 @@
 
 	<script type="text/javascript">
 
+	var NUM_BINS = 20;
+	var MAX_VOLUME_PER_BIN = 150;
+	var MAX_COLOR_PER_BIN = 100;
+
+	function getVolumeRatio(arr) {
+		let volume = 0;
+		for (let i = 0; i < NUM_BINS; i++) {
+			volume += arr[i];
+		}
+		return volume / (NUM_BINS * MAX_VOLUME_PER_BIN);
+	}
+
+	function getRGB(arr) {
+		let redCount = 0;
+		let greenCount = 0;
+		let blueCount = 0;
+
+		for (let i = 0; i < NUM_BINS / 3; i++) {
+			blueCount += arr[i];
+			greenCount += arr[i * 2];
+			redCount += arr[i * 3];
+		}
+		return rgbToHex(Math.floor(redCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 100 + 155),
+										Math.floor(greenCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 255),
+										Math.floor(blueCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 255));
+	}
 
 
 	// Older browsers might not implement mediaDevices at all, so we set an empty object first
@@ -189,11 +215,11 @@
 	$container.append(renderer.domElement);
 
 	// create the particle variables
-	var particleCount = 1000,
+	var particleCount = 2000
 	    particles = new THREE.Geometry(),
 			pMaterial = new THREE.ParticleBasicMaterial({
 				color: 0xFFFFFF,
-				size: 3
+				size: 4
 			});
 
 	// now create the individual particles
@@ -238,11 +264,13 @@
 
 		if (dataArrayAlt != null) {
 			analyser.getByteFrequencyData(dataArrayAlt);
-			// console.log(dataArrayAlt);
+			console.log(getRGB(dataArrayAlt));
+			particleSystem.materials[0].color = new THREE.Color(getRGB(dataArrayAlt));
 		}
 
 		// add some rotation to the system
 		particleSystem.rotation.z += 0.005;
+
 
 		var pCount = particleCount;
 		while(pCount--) {
