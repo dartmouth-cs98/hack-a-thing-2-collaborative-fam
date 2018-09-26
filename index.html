@@ -30,6 +30,33 @@
 	var MAX_VOLUME_PER_BIN = 150;
 	var MAX_COLOR_PER_BIN = 100;
 
+	var MIN_RADIUS = 100;
+	var MAX_RADIUS = 600;
+	var target_radius = 200;
+	var PARTICLE_SPEED = 8;
+
+	function getNewCoordinates(x, y) {
+		let currRadius = Math.sqrt(x**2 + y**2);
+		let angle = Math.asin(y / currRadius);
+		if (y < 0) {
+			angle += Math.PI;
+		}
+		let newX, newY;
+		if (currRadius < target_radius) {
+			// move point outward
+			newX = Math.cos(angle) * (currRadius + Math.random() * PARTICLE_SPEED);
+			newY = Math.sin(angle) * (currRadius + Math.random() * PARTICLE_SPEED);
+		} else {
+			// move point inward
+			newX = Math.cos(angle) * (currRadius - Math.random() * PARTICLE_SPEED);
+			newY = Math.sin(angle) * (currRadius - Math.random() * PARTICLE_SPEED);
+		}
+		return {
+						x: newX * Math.sign(x),
+						y: newY * Math.sign(y)
+					 };
+	}
+
 	function getVolumeRatio(arr) {
 		let volume = 0;
 		for (let i = 0; i < NUM_BINS; i++) {
@@ -132,38 +159,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// @see http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 	window.requestAnimFrame = (function(){
       return  window.requestAnimationFrame       ||
@@ -232,8 +227,8 @@
 		// position values around a circle
 		var angle = Math.random()*Math.PI*2;
 		// console.log(angle);
-		var pX = Math.cos(angle) * (200 + (Math.random() * 100)),
-				pY = Math.sin(angle) * (200 + (Math.random() * 100)),
+		var pX = Math.cos(angle) * (MIN_RADIUS + (Math.random() * 100)),
+				pY = Math.sin(angle) * (MIN_RADIUS + (Math.random() * 100)),
 				pZ = 0,
 		    particle = new THREE.Vertex( new THREE.Vector3(pX, pY, pZ) );
 
@@ -260,15 +255,17 @@
 	// moving outwards or not
 	var out = true;
 
-	console.log(particles.vertices[0]);
+	// console.log(particles.vertices[0]);
 
 	// animation loop
 	function update() {
 
 		if (dataArrayAlt != null) {
 			analyser.getByteFrequencyData(dataArrayAlt);
-			console.log(getRGB(dataArrayAlt));
+			// console.log(getRGB(dataArrayAlt));
 			particleSystem.materials[0].color = new THREE.Color(getRGB(dataArrayAlt));
+			let volumeRatio = getVolumeRatio(dataArrayAlt);
+			target_radius = MIN_RADIUS + volumeRatio * (MAX_RADIUS - MIN_RADIUS);
 		}
 
 		// add some rotation to the system
@@ -279,6 +276,14 @@
 		while(pCount--) {
 			// get the particle
 			var particle = particles.vertices[pCount];
+
+			if (dataArrayAlt != null) {
+
+				let newCoordinates = getNewCoordinates(particle.position.x, particle.position.y);
+				particle.position.x = newCoordinates.x;
+				particle.position.y = newCoordinates.y;
+			}
+			// console.log(particle)
 
 			// and the position
 			// if (out) {
