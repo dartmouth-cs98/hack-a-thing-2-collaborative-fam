@@ -6,8 +6,11 @@
 		<style>
 			#container {
 				background: #000;
-				width: 400px;
-				height: 300px;
+				/* width: 400px;
+				height: 300px; */
+			}
+			body, html {
+				margin: 0px;
 			}
 		</style>
 	</head>
@@ -45,9 +48,9 @@
 			greenCount += arr[i * 2];
 			redCount += arr[i * 3];
 		}
-		return rgbToHex(Math.floor(redCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 100 + 155),
+		return rgbToHex(Math.floor(redCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 150 + 105),
 										Math.floor(greenCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 255),
-										Math.floor(blueCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 255));
+										Math.floor(blueCount / (NUM_BINS * MAX_COLOR_PER_BIN) * 205 + 50));
 	}
 
 
@@ -180,8 +183,8 @@
 	// set the scene size
 	// var WIDTH = 400,
 	//     HEIGHT = 300;
-	var WIDTH = 800,
-			HEIGHT = 800;
+	var WIDTH = window.innerWidth,
+			HEIGHT = window.innerHeight;
 
 	// set some camera attributes
 	var VIEW_ANGLE = 45,
@@ -219,7 +222,7 @@
 	    particles = new THREE.Geometry(),
 			pMaterial = new THREE.ParticleBasicMaterial({
 				color: 0xFFFFFF,
-				size: 4
+				size: 5
 			});
 
 	// now create the individual particles
