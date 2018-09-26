@@ -6,11 +6,10 @@
 		<style>
 			#container {
 				background: #000;
-				/* width: 400px;
-				height: 300px; */
 			}
 			body, html {
 				margin: 0px;
+				overflow: hidden;
 			}
 		</style>
 	</head>
@@ -30,12 +29,15 @@
 	var MAX_VOLUME_PER_BIN = 150;
 	var MAX_COLOR_PER_BIN = 100;
 
-	var MIN_RADIUS = 100;
-	var MAX_RADIUS = 600;
-	var target_radius = 200;
-	var PARTICLE_SPEED = 8;
+	function getSpeed(startingRadius) {
+		return .1 + (startingRadius / 100) ** 1.7;
+	}
 
-	function getNewCoordinates(x, y) {
+	function getTargetRadius(target_radius, startingRadius) {
+		return target_radius - ((startingRadius / 100) ** 2);
+	}
+
+	function getNewCoordinates(x, y, startingRadius) {
 		let currRadius = Math.sqrt(x**2 + y**2);
 		let angle = Math.asin(y / currRadius);
 		if (y < 0) {
@@ -44,12 +46,12 @@
 		let newX, newY;
 		if (currRadius < target_radius) {
 			// move point outward
-			newX = Math.cos(angle) * (currRadius + Math.random() * PARTICLE_SPEED);
-			newY = Math.sin(angle) * (currRadius + Math.random() * PARTICLE_SPEED);
+			newX = Math.cos(angle) * (currRadius + getSpeed(startingRadius));
+			newY = Math.sin(angle) * (currRadius + getSpeed(startingRadius));
 		} else {
 			// move point inward
-			newX = Math.cos(angle) * (currRadius - Math.random() * PARTICLE_SPEED);
-			newY = Math.sin(angle) * (currRadius - Math.random() * PARTICLE_SPEED);
+			newX = Math.cos(angle) * (currRadius - getSpeed(startingRadius));
+			newY = Math.sin(angle) * (currRadius - getSpeed(startingRadius));
 		}
 		return {
 						x: newX * Math.sign(x),
@@ -113,7 +115,6 @@
 
 	// set up forked web audio context, for multiple browsers
 	// window. is needed otherwise Safari explodes
-
 	var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 	// var voiceSelect = document.getElementById("voice");
 	var source;
@@ -212,8 +213,14 @@
 	// attach the render-supplied DOM element
 	$container.append(renderer.domElement);
 
+
+	var MIN_RADIUS = 10;
+	var MAX_RADIUS = 500;
+	var target_radius = 50;
+	var PARTICLE_SPEED = 3;
+
 	// create the particle variables
-	var particleCount = 2000
+	var particleCount = 5000
 	    particles = new THREE.Geometry(),
 			pMaterial = new THREE.ParticleBasicMaterial({
 				color: 0xFFFFFF,
@@ -227,19 +234,22 @@
 		// position values around a circle
 		var angle = Math.random()*Math.PI*2;
 		// console.log(angle);
-		var pX = Math.cos(angle) * (MIN_RADIUS + (Math.random() * 100)),
-				pY = Math.sin(angle) * (MIN_RADIUS + (Math.random() * 100)),
+		var pX = Math.cos(angle) * (MIN_RADIUS + (Math.random() * 300)),
+				pY = Math.sin(angle) * (MIN_RADIUS + (Math.random() * 300)),
 				pZ = 0,
 		    particle = new THREE.Vertex( new THREE.Vector3(pX, pY, pZ) );
 
+		particle.startingRadius = Math.sqrt(pX**2 + pY**2);
+
 		// create a velocity vector
-		particle.velocity = new THREE.Vector3(
-			Math.cos(angle) * (1),
-			Math.sin(angle) * (1),
-			0);
+		// particle.velocity = new THREE.Vector3(
+		// 	Math.cos(angle) * (1),
+		// 	Math.sin(angle) * (1),
+		// 	0);
 
 		// add it to the geometry
 		particles.vertices.push(particle);
+		console.log();
 	}
 
 	// create the particle system
@@ -279,7 +289,7 @@
 
 			if (dataArrayAlt != null) {
 
-				let newCoordinates = getNewCoordinates(particle.position.x, particle.position.y);
+				let newCoordinates = getNewCoordinates(particle.position.x, particle.position.y, particle.startingRadius);
 				particle.position.x = newCoordinates.x;
 				particle.position.y = newCoordinates.y;
 			}
