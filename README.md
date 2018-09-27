@@ -2,6 +2,8 @@
 
 Anders Bando-Hess and Isaac Gluck - September 2018
 
+Sadly the demo below does not show cool visual effects. My website is not secured, so web browsers won't allow the use of APIs like a built-in microphone.
+
 [Demo](http://bandohess.com/SoundVis/index.html)
 
 ### Description
