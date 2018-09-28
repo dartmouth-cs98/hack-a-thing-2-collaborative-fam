@@ -46,7 +46,7 @@ if (navigator.mediaDevices.getUserMedia) {
 
 
 
-// VISUAL EFFECTS
+// VISUAL EFFECTS with help from https://aerotwist.com/tutorials/creating-particles-with-three-js/
 // Constants
 var NUM_BINS = 25; // Array of frequencies has 128 bins. Most of them are not used
 var MAX_VOLUME_PER_BIN = 150;
